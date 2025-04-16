@@ -1,5 +1,7 @@
 #include <windows.h>
 #include <shellapi.h>
+#include <thread>
+#include <atomic>
 
 // Globale Variablen
 static NOTIFYICONDATA nid = {0};
@@ -7,6 +9,7 @@ static HWND hWnd = NULL;
 
 static void (*leftClickCallback)() = NULL;
 static void (*rightClickCallback)() = NULL;
+static std::atomic<bool> loopRunning = false;
 
 // Fensterprozedur
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -83,17 +86,27 @@ extern "C" __declspec(dllexport) void SetRightClickCallback(void (*callback)())
   rightClickCallback = callback;
 }
 
-extern "C" __declspec(dllexport) void RunMessageLoop()
+// Hintergrund-Thread für Message Loop
+void MessageLoopThread()
 {
   MSG msg;
-  while (GetMessage(&msg, NULL, 0, 0))
+  loopRunning = true;
+  while (loopRunning && GetMessage(&msg, NULL, 0, 0))
   {
     TranslateMessage(&msg);
     DispatchMessage(&msg);
   }
 }
 
+// Startet die Message Loop im Hintergrund-Thread
+extern "C" __declspec(dllexport) void RunMessageLoop()
+{
+  std::thread(MessageLoopThread).detach();
+}
+
+// Beendet die Message Loop
 extern "C" __declspec(dllexport) void QuitMessageLoop()
 {
+  loopRunning = false;
   PostQuitMessage(0);
 }
