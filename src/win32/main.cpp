@@ -85,3 +85,18 @@ extern "C" __declspec(dllexport) void SetRightClickCallback(void (*callback)())
 {
   rightClickCallback = callback;
 }
+
+extern "C" __declspec(dllexport) void RunMessageLoop()
+{
+  MSG msg;
+  while (GetMessage(&msg, NULL, 0, 0))
+  {
+    TranslateMessage(&msg);
+    DispatchMessage(&msg);
+  }
+}
+
+extern "C" __declspec(dllexport) void QuitMessageLoop()
+{
+  PostQuitMessage(0);
+}
