@@ -2,6 +2,7 @@
 #include <shellapi.h>
 #include <thread>
 #include <atomic>
+#include <iostream>
 
 // Globale Variablen
 static NOTIFYICONDATA nid = {0};
@@ -9,7 +10,7 @@ static HWND hWnd = NULL;
 
 static void (*leftClickCallback)() = NULL;
 static void (*rightClickCallback)() = NULL;
-static std::atomic<bool> loopRunning = false;
+static std::atomic<bool> loopRunning(false);
 
 // Fensterprozedur
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
