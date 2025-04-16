@@ -50,9 +50,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
   {
     hWnd = CreateHiddenWindow();
     if (!hWnd)
-      return ம
+      return FALSE;
 
-                 nid.cbSize = sizeof(NOTIFYICONDATA);
+    nid.cbSize = sizeof(NOTIFYICONDATA);
     nid.hWnd = hWnd;
     nid.uID = 1;
     nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
