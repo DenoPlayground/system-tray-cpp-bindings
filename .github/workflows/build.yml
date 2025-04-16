@@ -18,10 +18,10 @@ jobs:
       run: choco install mingw
 
     - name: Compile DLL
-      run: g++ -shared -o traylib.dll ./src/win32/main.cpp
+      run: g++ -shared -o ./build/win32/main.dll ./src/win32/main.cpp
 
     - name: Upload DLL artifact
       uses: actions/upload-artifact@v4
       with:
-        name: traylib-dll
-        path: traylib.dll
+        name: system_tray
+        path: build/**/*.dll
