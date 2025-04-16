@@ -7,29 +7,29 @@ static HWND hWnd = NULL;
 static void (*leftClickCallback)() = NULL;
 static void (*rightClickCallback)() = NULL;
 
-// Fensterprozedur für Tray-Nachrichten
+// Fensterprozedur
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
   if (msg == WM_APP + 1)
   {
-    if (lParam == WM_LBUTTONDOWN && leftClickCallback)
+    OutputDebugString("Tray-Nachricht empfangen\n");
+    if (lParam == WM_LBUTTONDOWN)
     {
-      leftClickCallback();
+      OutputDebugString("Linksklick erkannt\n");
+      if (leftClickCallback)
+        leftClickCallback();
     }
-    else if (lParam == WM_RBUTTONDOWN && rightClickCallback)
+    else if (lParam == WM_RBUTTONDOWN)
     {
-      rightClickCallback();
+      OutputDebugString("Rechtsklick erkannt\n");
+      if (rightClickCallback)
+        rightClickCallback();
     }
-  }
-  else if (msg == WM_DESTROY)
-  {
-    Shell_NotifyIcon(NIM_DELETE, &nid);
-    PostQuitMessage(0);
   }
   return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-// Erstellt ein verstecktes Fenster
+// Verstecktes Fenster erstellen
 HWND CreateHiddenWindow()
 {
   WNDCLASS wc = {0};
@@ -49,7 +49,10 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
   if (ul_reason_for_call == DLL_PROCESS_ATTACH && !hWnd)
   {
     hWnd = CreateHiddenWindow();
-    nid.cbSize = sizeof(NOTIFYICONDATA);
+    if (!hWnd)
+      return ம
+
+                 nid.cbSize = sizeof(NOTIFYICONDATA);
     nid.hWnd = hWnd;
     nid.uID = 1;
     nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
