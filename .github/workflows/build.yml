@@ -1,0 +1,27 @@
+name: Build DLL
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install MinGW
+      run: choco install mingw
+
+    - name: Compile DLL
+      run: g++ -shared -o traylib.dll ./src/win32/main.cpp
+
+    - name: Upload DLL artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: traylib-dll
+        path: traylib.dll
