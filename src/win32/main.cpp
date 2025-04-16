@@ -13,16 +13,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
   if (msg == WM_APP + 1)
   {
-    OutputDebugString("Tray-Nachricht empfangen\n");
     if (lParam == WM_LBUTTONDOWN)
     {
-      OutputDebugString("Linksklick erkannt\n");
       if (leftClickCallback)
         leftClickCallback();
     }
     else if (lParam == WM_RBUTTONDOWN)
     {
-      OutputDebugString("Rechtsklick erkannt\n");
       if (rightClickCallback)
         rightClickCallback();
     }
