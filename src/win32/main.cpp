@@ -2,7 +2,6 @@
 #include <shellapi.h>
 #include <thread>
 #include <atomic>
-#include <iostream>
 
 // Globale Variablen
 static NOTIFYICONDATA nid = {0};
