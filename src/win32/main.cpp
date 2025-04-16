@@ -4,33 +4,34 @@
 // Globale Variablen
 static NOTIFYICONDATA nid = {0};
 static HWND hWnd = NULL;
-static HANDLE hThread = NULL;
+
 static void (*leftClickCallback)() = NULL;
 static void (*rightClickCallback)() = NULL;
 
-// Fensterprozedur für Tray-Nachrichten
+// Fensterprozedur
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
   if (msg == WM_APP + 1)
   {
-    if (lParam == WM_LBUTTONDOWN && leftClickCallback)
+    OutputDebugString("Tray-Nachricht empfangen\n");
+    if (lParam == WM_LBUTTONDOWN)
     {
-      leftClickCallback();
+      OutputDebugString("Linksklick erkannt\n");
+      if (leftClickCallback)
+        leftClickCallback();
     }
-    else if (lParam == WM_RBUTTONDOWN && rightClickCallback)
+    else if (lParam == WM_RBUTTONDOWN)
     {
-      rightClickCallback();
+      OutputDebugString("Rechtsklick erkannt\n");
+      if (rightClickCallback)
+        rightClickCallback();
     }
   }
-  else if (msg == WM_DESTROY)
-  {
-    Shell_NotifyIcon(NIM_DELETE, &nid);
-    PostQuitMessage(0);
-  }
+
   return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-// Erstellt ein verstecktes Fenster
+// Verstecktes Fenster erstellen
 HWND CreateHiddenWindow()
 {
   WNDCLASS wc = {0};
@@ -44,18 +45,6 @@ HWND CreateHiddenWindow()
   return hWnd;
 }
 
-// Nachrichtenverarbeitungsschleife in einem separaten Thread
-DWORD WINAPI MessageLoopThread(LPVOID lpParam)
-{
-  MSG msg;
-  while (GetMessage(&msg, NULL, 0, 0))
-  {
-    TranslateMessage(&msg);
-    DispatchMessage(&msg);
-  }
-  return 0;
-}
-
 // DLL-Einstiegspunkt
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
@@ -63,7 +52,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
   {
     hWnd = CreateHiddenWindow();
     if (!hWnd)
-      return FALSE; // Fehler, wenn Fenster nicht erstellt werden kann
+      return FALSE;
 
     nid.cbSize = sizeof(NOTIFYICONDATA);
     nid.hWnd = hWnd;
@@ -72,22 +61,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     nid.uCallbackMessage = WM_APP + 1;
     nid.hIcon = LoadIcon(NULL, IDI_APPLICATION);
     strcpy(nid.szTip, "Deno Tray App");
-
-    // Starte den Thread für die Nachrichtenverarbeitung
-    hThread = CreateThread(NULL, 0, MessageLoopThread, NULL, 0, NULL);
-    if (!hThread)
-      return FALSE; // Fehler, wenn Thread nicht erstellt werden kann
-  }
-  else if (ul_reason_for_call == DLL_PROCESS_DETACH)
-  {
-    if (hThread)
-    {
-      PostMessage(hWnd, WM_QUIT, 0, 0); // Beende die Nachrichtenverarbeitung
-      WaitForSingleObject(hThread, INFINITE);
-      CloseHandle(hThread);
-    }
-    if (hWnd)
-      DestroyWindow(hWnd);
   }
   return TRUE;
 }
